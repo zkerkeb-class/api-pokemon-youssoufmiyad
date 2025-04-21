@@ -1,0 +1,166 @@
+openapi: 3.0.0
+info:
+  title: API Pokémon
+  description: Une API RESTful pour gérer les Pokémon.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Serveur local
+
+paths:
+  /:
+    get:
+      summary: Accueil de l'API
+      responses:
+        '200':
+          description: Message de bienvenue
+
+  /api/pokemons:
+    get:
+      summary: Récupère la liste des Pokémon et des types
+      responses:
+        '200':
+          description: Liste des Pokémon et types
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  types:
+                    type: array
+                    items:
+                      type: string
+                  pokemons:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Pokemon'
+
+    post:
+      summary: Crée un nouveau Pokémon
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPokemon'
+      responses:
+        '200':
+          description: Pokémon bien ajouté
+        '400':
+          description: Erreur dans les données envoyées
+
+  /api/pokemons/{id}:
+    get:
+      summary: Récupère un Pokémon par son ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Détails du Pokémon
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pokemon:
+                    $ref: '#/components/schemas/Pokemon'
+        '404':
+          description: Pokémon non trouvé
+
+    put:
+      summary: Met à jour un Pokémon par son ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPokemon'
+      responses:
+        '200':
+          description: Pokémon mis à jour
+        '404':
+          description: Pokémon non trouvé
+
+    delete:
+      summary: Supprime un Pokémon par son ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pokémon supprimé
+        '404':
+          description: Pokémon non trouvé
+
+components:
+  schemas:
+    Pokemon:
+      type: object
+      required: [id, name, type, base, image]
+      properties:
+        id:
+          type: integer
+        name:
+          type: object
+          required: [english, japanese, chinese, french]
+          properties:
+            english:
+              type: string
+            japanese:
+              type: string
+            chinese:
+              type: string
+            french:
+              type: string
+        type:
+          type: array
+          items:
+            type: string
+        base:
+          type: object
+          required: [HP, Attack, Defense, "Sp. Attack", "Sp. Defense", Speed]
+          properties:
+            HP:
+              type: integer
+            Attack:
+              type: integer
+            Defense:
+              type: integer
+            Sp. Attack:
+              type: integer
+            Sp. Defense:
+              type: integer
+            Speed:
+              type: integer
+        image:
+          type: string
+          format: uri
+
+    NewPokemon:
+      type: object
+      required: [name, type, base, image]
+      properties:
+        name:
+          $ref: '#/components/schemas/Pokemon/properties/name'
+        type:
+          type: array
+          items:
+            type: string
+        base:
+          $ref: '#/components/schemas/Pokemon/properties/base'
+        image:
+          type: string
+          format: uri
